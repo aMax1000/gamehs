@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Мини-игра</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+
+        #player {
+            width: 50px;
+            height: 50px;
+            background-color: blue;
+            position: absolute;
+            left: 100px;
+            top: 100px;
+        }
+
+        #target {
+            width: 40px;
+            height: 40px;
+            background-color: gold;
+            border-radius: 50%;
+            position: absolute;
+        }
+        #trap {
+            width: 40px;
+            height: 40px;
+            background-color: red;
+            position: absolute;
+        }
+
+        #message {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: green;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="player"></div>
+    <div id="target"></div>
+    <div id="trap"></div>
+    <div id="message"></div>
+
+    <script>
+        const player = document.getElementById("player");
+        const target = document.getElementById("target");
+        const trap = document.getElementById("trap");
+        const message = document.getElementById("message");
+
+        let x = 100;
+        let y = 100;
+        const step = 20;
+
+        // Случайное положение круга
+        function moveTarget(tar) {
+            const maxX = window.innerWidth - 40;
+            const maxY = window.innerHeight - 40;
+
+            const randomX = Math.random() * maxX;
+            const randomY = Math.random() * maxY;
+
+            tar.style.left = randomX + "px";
+            tar.style.top = randomY + "px";
+        }
+
+        moveTarget(target);
+        moveTarget(trap);
+        var score=0;   
+
+        // Проверка столкновения
+        function checkCollisionwin(show=true) {
+            const p = player.getBoundingClientRect();
+            const t = target.getBoundingClientRect();
+
+            if (
+                p.left < t.right && p.right > t.left && p.top < t.bottom &&
+                p.bottom > t.top      ) 
+            {
+                if(show==true){
+                    score++;
+                    message.textContent = String(score);
+                    moveTarget(trap);
+                    checkCollisionlose(false);
+                }
+                moveTarget(target);
+                checkCollisionwin(false);
+
+            }
+        }
+        function checkCollisionlose(show=true) {
+            const p = player.getBoundingClientRect();
+            const t = trap.getBoundingClientRect();
+
+            if (
+                p.left < t.right && p.right > t.left && p.top < t.bottom &&
+                p.bottom > t.top      ) 
+            {
+                if(show==true){
+                    score=0;
+                    message.textContent = String(score);
+                }
+                moveTarget(trap);
+                checkCollisionlose(false)
+            }
+        }
+
+        
+        var arr=[false,false,false,false]
+        var movment=[0,0]
+        // Управление стрелками
+        document.addEventListener("keydown", function (event) {
+
+            if (event.key === "ArrowDown") {
+                arr[0]=true;    
+            }
+
+            if (event.key === "ArrowRight") {
+                arr[1]=true;
+            }
+
+            if (event.key === "ArrowUp") {
+                arr[2]=true;
+            }
+
+            if (event.key === "ArrowLeft") {
+                arr[3]=true;
+            }
+
+        });
+        document.addEventListener("keyup", function (event) {
+
+            if (event.key === "ArrowDown") {
+                arr[0]=false;
+            }
+
+            if (event.key === "ArrowRight") {
+                arr[1]=false;
+            }
+
+            if (event.key === "ArrowUp") {
+               arr[2]=false;
+            }
+
+            if (event.key === "ArrowLeft") {
+                arr[3]=false;
+            }
+        })
+
+
+        function tick(){
+            
+            for(var i=0;i<2;i++){
+                movment[i]*=0.99    
+                movment[i]+=Number(arr[i])*0.5;
+                movment[i]-=Number(arr[i+2])*0.5
+            }
+            y+=movment[0]
+            x+=movment[1]
+            player.style.left = x + "px";
+            player.style.top = y + "px";
+            checkCollisionwin()
+            checkCollisionlose()
+            setTimeout(() => {
+                   tick();
+                }, 16.66);
+        }
+        tick()
+        // Дополнить функциональность ....
+        //Количество попадании фиксируется в переменной и выводится на консоль! 
+    </script>
+
+    
+
+</body>
+
+</html>
